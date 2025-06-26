@@ -1,5 +1,6 @@
 import express from "express";
 import RouterLibros from "./router/libros.js";
+import { authenticateFirebase } from "./middlewares/firebaseAuth.js";
 
 class Server {
   #port;
@@ -15,7 +16,7 @@ class Server {
     app.use(express.static("public"));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-
+    app.use("/api", authenticateFirebase);
     app.use("/api/libros", new RouterLibros(this.#persistencia).start());
     const PORT = this.#port;
     const server = app.listen(PORT, () =>
