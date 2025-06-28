@@ -1,6 +1,5 @@
 import express from "express";
-import RouterLibros from "./router/libros.js";
-import { authenticateFirebase } from "./middlewares/firebaseAuth.js";
+import RouterGames from "./router/games.router.js";
 
 class Server {
   #port;
@@ -13,11 +12,10 @@ class Server {
   start() {
     const app = express();
 
-    app.use(express.static("public"));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    app.use("/api", authenticateFirebase);
-    app.use("/api/libros", new RouterLibros(this.#persistencia).start());
+
+    app.use("/api/games", new RouterGames(this.#persistencia).start());
     const PORT = this.#port;
     const server = app.listen(PORT, () =>
       console.log(`Servidor express escuchando en http://localhost:${PORT}`)
