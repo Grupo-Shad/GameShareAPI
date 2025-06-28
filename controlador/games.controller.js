@@ -11,16 +11,25 @@ class GamesController {
     try {
       const { id } = req.params;
       const games = await this.#service.getGames(id);
-      
+
       if (id && games === null) {
         return res.status(404).json({ error: "Game not found" });
       }
-      
+
       res.json(games);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  };
+
+  getFeaturedGames = async (req, res) => {
+    try {
+      const featuredGames = await this.#service.getFeaturedGames();
+      res.json(featuredGames);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
   saveGame = async (req, res) => {
     try {
@@ -34,34 +43,34 @@ class GamesController {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  };
 
   updateGame = async (req, res) => {
     try {
       const { id } = req.params;
       const gameData = req.body;
       const updatedGame = await this.#service.updateGame(id, gameData);
-      
+
       res
         .status(updatedGame ? 200 : 404)
         .json(updatedGame ? updatedGame : { error: "Game not found" });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  };
 
   deleteGame = async (req, res) => {
     try {
       const { id } = req.params;
       const deletedGame = await this.#service.deleteGame(id);
-      
+
       res
         .status(deletedGame ? 200 : 404)
         .json(deletedGame ? deletedGame : { error: "Game not found" });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+  };
 }
 
 export default GamesController;
