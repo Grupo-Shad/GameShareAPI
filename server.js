@@ -1,5 +1,6 @@
 import express from "express";
 import RouterGames from "./router/games.router.js";
+import FavoritesRouter from "./router/favorites.router.js";
 
 class Server {
   #port;
@@ -16,6 +17,8 @@ class Server {
     app.use(express.urlencoded({ extended: true }));
 
     app.use("/api/games", new RouterGames(this.#persistencia).start());
+    app.use("/api/favorites", new FavoritesRouter(this.#persistencia).start());
+    
     const PORT = this.#port;
     const server = app.listen(PORT, () =>
       console.log(`Servidor express escuchando en http://localhost:${PORT}`)
