@@ -39,6 +39,14 @@ class FavoritesDao {
         return userFavorites;
     }
 
+    removeFavorite = async (userId, gameId) => {
+        const userFavorites = this.#favorites.find(f => f.userId === userId);
+        if (userFavorites) {
+            userFavorites.favorites = userFavorites.favorites.filter(id => id !== gameId);
+        }
+        return userFavorites;
+    }
+
 }
 
 export default FavoritesDao;

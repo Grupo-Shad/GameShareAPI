@@ -17,6 +17,11 @@ class GamesService {
     }
   };
 
+  getFeaturedGames = async () => {
+    const games = await this.#model.getGames();
+    return games.filter((game) => game.featured);
+  };
+
   saveGame = async (game) => {
     const savedGame = await this.#model.saveGame(game);
     return savedGame;

@@ -11,13 +11,12 @@ class FavoritesService {
     return favorites
   }
 
-  addFavorite = async (userId, gameId) => {
+  toggleFavorite = async (userId, gameId) => {
     const favorites = await this.getFavorites(userId);
     if (favorites.includes(gameId)) {
-      throw new Error("El juego ya está en favoritos");
+      return await this.#favoritesDao.removeFavorite(userId, gameId)
     } else {
-      const favorite = await this.#favoritesDao.addFavorite(userId, gameId)
-      return favorite
+      return await this.#favoritesDao.addFavorite(userId, gameId)
     }
   }
 }

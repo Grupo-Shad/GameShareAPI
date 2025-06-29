@@ -18,15 +18,16 @@ class FavoritesController {
     }
   }
 
-  addFavorite = async (req, res) => {
+  toggleFavorite = async (req, res) => {
     try {
       const { userId, gameId } = req.body
-      const favorite = await this.#service.addFavorite(userId, gameId)
+      const favorite = await this.#service.toggleFavorite(userId, gameId)
       res.json(favorite)
     } catch (error) {
       res.status(500).json({ error: error.message })
     }
   }
+
 }
 
 export default FavoritesController; 

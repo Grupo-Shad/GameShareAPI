@@ -1,5 +1,6 @@
 import express from "express";
 import FavoritesController from "../controlador/favorites.controller.js";
+import { validateFavorites } from "../servicio/validaciones/favorites.validator.js";
 
 class FavoritesRouter {
   #controlador;
@@ -10,7 +11,7 @@ class FavoritesRouter {
   start() {
     const router = express.Router();
     router.get("/:userId", this.#controlador.getFavorites);
-    router.post("/", this.#controlador.addFavorite);
+    router.post("/toggle", validateFavorites, this.#controlador.toggleFavorite);
     return router;
   }
 }
