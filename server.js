@@ -1,6 +1,7 @@
 import express from "express";
 import RouterGames from "./router/games.router.js";
 import cors from "cors";
+import { authenticateFirebase } from "./middlewares/firebaseAuth.js";
 
 // CORS Origins Configuration
 const CORS_ORIGINS = [
@@ -29,6 +30,7 @@ class Server {
     );
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
+    app.use("/api", authenticateFirebase);
     app.use("/api/games", new RouterGames(this.#persistencia).start());
     const PORT = this.#port;
     const server = app.listen(PORT, "0.0.0.0", () =>
