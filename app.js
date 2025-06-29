@@ -1,4 +1,4 @@
-import CnxMongoDB from "../Clase10/ApiRestful-MVC/model/DBMongo.js";
+import CnxMongoDB from "./model/DBMongo.js";
 import config from "./config.js";
 import Server from "./server.js";
 
