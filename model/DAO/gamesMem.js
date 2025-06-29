@@ -14,6 +14,9 @@ class GamesMem {
         featured: true,
         imageUrl:
           "https://www.metacritic.com/a/img/catalog/provider/6/3/6-1-844837-13.jpg",
+        score: 97,
+        description:
+          "An open-world adventure that redefines the Zelda series with incredible freedom and exploration.",
       },
       {
         id: 2,
@@ -32,6 +35,9 @@ class GamesMem {
         featured: true,
         imageUrl:
           "https://www.metacritic.com/a/img/catalog/provider/6/12/6-1-689098-52.jpg",
+        score: 97,
+        description:
+          "An epic tale of outlaws in the American frontier with stunning detail.",
       },
       {
         id: 3,
@@ -50,6 +56,9 @@ class GamesMem {
         featured: true,
         imageUrl:
           "https://www.metacritic.com/a/img/catalog/provider/7/2/7-1749407617.jpg?auto=webp&fit=cover&height=132&width=88",
+        score: 86,
+        description:
+          "A futuristic RPG set in Night City with immersive cyberpunk aesthetics.",
       },
       {
         id: 4,
@@ -68,6 +77,8 @@ class GamesMem {
         developerStudio: "InnerSloth",
         genre: ["Social Deduction"],
         featured: true,
+        score: 78,
+        description: "A social deduction game that became a global phenomenon.",
       },
       {
         id: 5,
@@ -88,6 +99,9 @@ class GamesMem {
         featured: true,
         imageUrl:
           "https://www.metacritic.com/a/img/catalog/provider/6/12/6-1-780942-52.jpg?height=100&width=70",
+        score: 90,
+        description:
+          "The ultimate sandbox game where creativity knows no bounds.",
       },
       {
         id: 6,
@@ -100,6 +114,9 @@ class GamesMem {
         featured: true,
         imageUrl:
           "https://www.metacritic.com/a/img/catalog/provider/6/12/6-1-780942-52.jpg?height=100&width=70",
+        score: 94,
+        description:
+          "A stunning Norse mythology adventure featuring Kratos and his son Atreus.",
       },
     ];
   }
