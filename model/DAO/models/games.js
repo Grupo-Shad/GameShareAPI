@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema(
   {
-    id: {
-      type: String,
-      default: uuidv4,
-      unique: true,
-    },
     name: {
       type: String,
       required: true,
@@ -40,7 +35,7 @@ const gameSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { versionKey: false }
+  { versionKey: false, collection: "Game" }
 );
 
 export const GameModel = mongoose.model("Game", gameSchema);

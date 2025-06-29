@@ -1,5 +1,5 @@
-import CnxMongoDB from "../DBMongo";
-import { GameModel } from "./models/games";
+import CnxMongoDB from "../DBMongo.js";
+import { GameModel } from "./models/games.js";
 
 class GamesMongoDb {
   constructor() {}
@@ -8,12 +8,13 @@ class GamesMongoDb {
     if (!CnxMongoDB.connectionOK)
       throw new Error("Error al conectar con la bd.");
     const games = await GameModel.find();
+    console.log(games);
     return games;
   };
   getGame = async (id) => {
     if (!CnxMongoDB.connectionOK)
       throw new Error("Error al conectar con la bd.");
-    const game = await GameModel.findOne({ id: id });
+    const game = await GameModel.findOne({ _id: id });
     return game || null;
   };
 
@@ -28,7 +29,7 @@ class GamesMongoDb {
   updateGame = async (id, gameData) => {
     if (!CnxMongoDB.connectionOK)
       throw new Error("Error al conectar con la bd.");
-    await GameModel.updateOne({ id: id }, { $set: gameData });
+    await GameModel.updateOne({ _id: id }, { $set: gameData });
     const gameActualizado = await this.getGame(id);
     return gameActualizado;
   };
@@ -37,7 +38,7 @@ class GamesMongoDb {
     if (!CnxMongoDB.connectionOK)
       throw new Error("Error al conectar con la bd.");
     const gameBorrado = await this.getGame(id);
-    await GameModel.deleteOne({ id: id });
+    await GameModel.deleteOne({ _id: id });
     return gameBorrado;
   };
 }
