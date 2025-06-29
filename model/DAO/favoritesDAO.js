@@ -30,6 +30,15 @@ class FavoritesDao {
         const userFavorites = this.#favorites.find(f => f.userId === userId);
         return userFavorites ? userFavorites.favorites : [];
     }
+
+    addFavorite = async (userId, gameId) => {
+        const userFavorites = this.#favorites.find(f => f.userId === userId);
+        if (userFavorites) {
+            userFavorites.favorites.push(gameId);
+        } 
+        return userFavorites;
+    }
+
 }
 
 export default FavoritesDao;

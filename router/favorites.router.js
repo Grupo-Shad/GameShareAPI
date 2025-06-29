@@ -10,8 +10,7 @@ class FavoritesRouter {
   start() {
     const router = express.Router();
     router.get("/:userId", this.#controlador.getFavorites);
-    //this.router.post("/", this.addFavorite);
-    //this.router.delete("/:id", this.removeFavorite);
+    router.post("/", this.#controlador.addFavorite);
     return router;
   }
 }
