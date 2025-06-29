@@ -4,7 +4,7 @@ const gameSchema = new mongoose.Schema(
   {
     id: {
       type: String,
-      required: true,
+      default: uuidv4,
       unique: true,
     },
     name: {
@@ -43,4 +43,4 @@ const gameSchema = new mongoose.Schema(
   { versionKey: false }
 );
 
-export const gameModel = mongoose.model("Game", gameSchema);
+export const GameModel = mongoose.model("Game", gameSchema);
