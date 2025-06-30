@@ -1,11 +1,11 @@
 import express from "express";
 import RouterGames from "./router/games.router.js";
+import FavoritesRouter from "./router/favorites.router.js";
 import WishlistsRouter from "./router/wishlists.router.js";
 import UsersRouter from "./router/users.router.js";
 import cors from "cors";
 import { authenticateFirebase } from "./middlewares/firebaseAuth.js";
 
-// CORS Origins Configuration
 const CORS_ORIGINS = [
   process.env.CORS_LOCALHOST,
   process.env.CORS_ANDROID_EMULATOR,
@@ -47,6 +47,7 @@ class Server {
       authenticateFirebase,
       new WishlistsRouter(this.#persistencia).start()
     );
+    app.use("/api/favorites", new FavoritesRouter(this.#persistencia).start());
     const PORT = this.#port;
     const server = app.listen(PORT, "0.0.0.0", () =>
       console.log(`Servidor express escuchando en http://0.0.0.0:${PORT}`)
