@@ -41,6 +41,22 @@ class GamesMongoDb {
     await GameModel.deleteOne({ _id: id });
     return gameBorrado;
   };
+
+  searchGames = async (query) => {
+    if (!CnxMongoDB.connectionOK)
+      throw new Error("Error al conectar con la bd.");
+
+    const games = await GameModel.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { publisher: { $regex: query, $options: "i" } },
+        { developerStudio: { $regex: query, $options: "i" } },
+        { genre: { $in: [new RegExp(query, "i")] } },
+      ],
+    }).limit(10);
+
+    return games;
+  };
 }
 
 export default GamesMongoDb;

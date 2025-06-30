@@ -36,6 +36,15 @@ class GamesService {
     const deletedGame = await this.#model.deleteGame(id);
     return deletedGame;
   };
+
+  searchGames = async (query) => {
+    if (!query || query.trim().length < 2) {
+      throw new Error("La búsqueda debe tener al menos 2 caracteres");
+    }
+
+    const games = await this.#model.searchGames(query.trim());
+    return games;
+  };
 }
 
 export default GamesService;

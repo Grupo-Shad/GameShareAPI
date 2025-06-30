@@ -67,6 +67,26 @@ class GamesController {
       res.status(500).json({ error: error.message });
     }
   };
+
+  searchGames = async (req, res) => {
+    try {
+      const { q } = req.query;
+
+      if (!q) {
+        return res
+          .status(400)
+          .json({ error: "Parámetro de búsqueda 'q' es requerido" });
+      }
+
+      const games = await this.#service.searchGames(q);
+      res.json(games);
+    } catch (error) {
+      if (error.message.includes("al menos 2 caracteres")) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  };
 }
 
 export default GamesController;

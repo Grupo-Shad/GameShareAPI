@@ -14,6 +14,7 @@ class GamesRouter {
   start() {
     const router = express.Router();
     router.get("/featured", this.#controlador.getFeaturedGames);
+    router.get("/search", this.#controlador.searchGames);
     router.get("/:id?", this.#controlador.getGames);
     router.post("/", validarCrearJuegoMiddleware, this.#controlador.saveGame);
     router.put(
