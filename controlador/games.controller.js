@@ -34,10 +34,6 @@ class GamesController {
   saveGame = async (req, res) => {
     try {
       const game = req.body;
-      if (!Object.keys(game).length) {
-        throw new Error("El juego está vacío");
-      }
-
       const savedGame = await this.#service.saveGame(game);
       res.status(201).json(savedGame);
     } catch (error) {
