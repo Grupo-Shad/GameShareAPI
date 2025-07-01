@@ -6,9 +6,10 @@ const favoriteSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        favorites: {
-            type: [String],
-        },
+        favorites: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Game"
+        }],
     },  
     { versionKey: false, collection: "Favorite" }
 );
