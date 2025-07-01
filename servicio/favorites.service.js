@@ -1,22 +1,28 @@
-import FavoritesDao from "../model/DAO/favoritesDAO.js";
+import FavoritesFactory from "../model/DAO/favoritesFactory.js";
+import GamesService from "./games.service.js";
 
 class FavoritesService {
-  #favoritesDao;
+  #favoritesModel;
+  #gamesService;
+  
   constructor(persistencia) {
-    this.#favoritesDao = new FavoritesDao();
+    console.log("persistencia: ", persistencia);
+    this.#favoritesModel = FavoritesFactory.get(persistencia);
+    this.#gamesService = new GamesService(persistencia);
   }
 
   getFavorites = async (userId) => {
-    const favorites = await this.#favoritesDao.getFavorites(userId)
-    return favorites
+    const favorites = await this.#favoritesModel.getFavorites(userId);
+    return favorites;
   }
 
   toggleFavorite = async (userId, gameId) => {
-    const favorites = await this.getFavorites(userId);
-    if (favorites.includes(gameId)) {
-      return await this.#favoritesDao.removeFavorite(userId, gameId)
+    let favoriteIds;
+    favoriteIds = await this.#favoritesModel.getFavoriteIds(userId);
+    if (favoriteIds.includes(gameId)) {
+      return await this.#favoritesModel.removeFavorite(userId, gameId);
     } else {
-      return await this.#favoritesDao.addFavorite(userId, gameId)
+      return await this.#favoritesModel.addFavorite(userId, gameId);
     }
   }
 }

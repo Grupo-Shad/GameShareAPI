@@ -19,7 +19,7 @@ class Server {
 
   constructor(port, persistencia) {
     this.#port = port;
-    this.persistencia = persistencia;
+    this.#persistencia = persistencia;
   }
   start() {
     const app = express();

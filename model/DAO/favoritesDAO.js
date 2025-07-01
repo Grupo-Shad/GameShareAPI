@@ -31,11 +31,22 @@ class FavoritesDao {
         return userFavorites ? userFavorites.favorites : [];
     }
 
+    getFavoriteIds = async (userId) => {
+        return await this.getFavorites(userId);
+    }
+
     addFavorite = async (userId, gameId) => {
         const userFavorites = this.#favorites.find(f => f.userId === userId);
         if (userFavorites) {
-            userFavorites.favorites.push(gameId);
-        } 
+            if (!userFavorites.favorites.includes(gameId)) {
+                userFavorites.favorites.push(gameId);
+            }
+        } else {
+            this.#favorites.push({
+                userId: userId,
+                favorites: [gameId]
+            });
+        }
         return userFavorites;
     }
 
