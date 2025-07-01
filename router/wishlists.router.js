@@ -57,6 +57,9 @@ class WishlistsRouter {
       this.#controlador.unshareWishlist
     );
 
+    // DELETE /wishlists/:wishlistId - Eliminar wishlist
+    router.delete("/:wishlistId", this.#controlador.deleteWishlist);
+
     return router;
   }
 }

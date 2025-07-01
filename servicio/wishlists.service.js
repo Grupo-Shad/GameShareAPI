@@ -8,6 +8,10 @@ class WishlistsService {
   }
 
   getWishlists = async (firebaseUid) => {
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlists = await this.#model.getWishlists(firebaseUid);
 
     const formattedWishlists = [];
@@ -15,13 +19,19 @@ class WishlistsService {
     for (const wishlist of wishlists) {
       const ownerInfo = await this.#model.getUserByFirebaseUid(wishlist.owner);
 
+      if (!ownerInfo) {
+        console.warn(
+          `Wishlist ${wishlist._id} tiene owner inexistente: ${wishlist.owner}`
+        );
+      }
+
       formattedWishlists.push({
         id: wishlist._id,
         title: wishlist.title,
         description: wishlist.description,
         owner: {
           firebaseUid: wishlist.owner,
-          username: ownerInfo?.username || "Usuario desconocido",
+          username: ownerInfo?.username || "Usuario eliminado",
           avatar: ownerInfo?.avatar || null,
         },
         games: wishlist.games.map((gameItem) => ({
@@ -42,6 +52,14 @@ class WishlistsService {
   };
 
   getWishlistById = async (wishlistId, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlist = await this.#model.getWishlist(wishlistId);
 
     if (!wishlist) {
@@ -58,13 +76,19 @@ class WishlistsService {
 
     const ownerInfo = await this.#model.getUserByFirebaseUid(wishlist.owner);
 
+    if (!ownerInfo) {
+      console.warn(
+        `Wishlist ${wishlist._id} tiene owner inexistente: ${wishlist.owner}`
+      );
+    }
+
     return {
       id: wishlist._id,
       title: wishlist.title,
       description: wishlist.description,
       owner: {
         firebaseUid: wishlist.owner,
-        username: ownerInfo?.username || "Usuario desconocido",
+        username: ownerInfo?.username || "Usuario eliminado",
         avatar: ownerInfo?.avatar || null,
       },
       games: wishlist.games.map((gameItem) => ({
@@ -90,7 +114,7 @@ class WishlistsService {
       formattedSharedWith.push({
         user: {
           firebaseUid: shareItem.user,
-          username: userInfo?.username || "Usuario desconocido",
+          username: userInfo?.username || "Usuario eliminado",
           avatar: userInfo?.avatar || null,
         },
         sharedAt: shareItem.sharedAt,
@@ -100,9 +124,33 @@ class WishlistsService {
   };
 
   createWishlist = async (title, description, firebaseUid) => {
+    if (!title) {
+      throw new Error("Title es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+    const ownerInfo = await this.#model.getUserByFirebaseUid(firebaseUid);
+    if (!ownerInfo) {
+      throw new Error("Usuario no encontrado en el sistema");
+    }
+
+    if (typeof title !== "string" || title.trim().length === 0) {
+      throw new Error("Title debe ser un texto válido");
+    }
+
+    if (title.trim().length > 100) {
+      throw new Error("Title no puede tener más de 100 caracteres");
+    }
+
+    if (description && description.length > 500) {
+      throw new Error("Description no puede tener más de 500 caracteres");
+    }
+
     const wishlistData = {
-      title,
-      description,
+      title: title.trim(),
+      description: description?.trim() || "",
       owner: firebaseUid,
       games: [],
       sharedWith: [],
@@ -110,15 +158,14 @@ class WishlistsService {
 
     const savedWishlist = await this.#model.saveWishlist(wishlistData);
 
-    const ownerInfo = await this.#model.getUserByFirebaseUid(firebaseUid);
     return {
       id: savedWishlist._id,
       title: savedWishlist.title,
       description: savedWishlist.description,
       owner: {
         firebaseUid: firebaseUid,
-        username: ownerInfo?.username || "Usuario desconocido",
-        avatar: ownerInfo?.avatar || null,
+        username: ownerInfo.username,
+        avatar: ownerInfo.avatar || null,
       },
       games: [],
       isOwner: true,
@@ -127,7 +174,44 @@ class WishlistsService {
     };
   };
 
+  deleteWishlist = async (wishlistId, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
+    const wishlist = await this.#model.getWishlist(wishlistId);
+    if (!wishlist) {
+      throw new Error("Wishlist no encontrada");
+    }
+
+    if (wishlist.owner !== firebaseUid) {
+      throw new Error("Solo el owner puede eliminar wishlists");
+    }
+
+    await this.#model.deleteWishlist(wishlistId);
+
+    return {
+      message: "Wishlist eliminada exitosamente",
+    };
+  };
+
   addGameToWishlist = async (wishlistId, gameId, notes, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!gameId) {
+      throw new Error("gameId es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlist = await this.#model.getWishlist(wishlistId);
     if (!wishlist) {
       throw new Error("Wishlist no encontrada");
@@ -135,6 +219,11 @@ class WishlistsService {
 
     if (wishlist.owner !== firebaseUid) {
       throw new Error("Solo el owner puede agregar juegos");
+    }
+
+    const game = await this.#model.getGame(gameId);
+    if (!game) {
+      throw new Error("Juego no encontrado");
     }
 
     const gameExists = wishlist.games.some(
@@ -145,9 +234,13 @@ class WishlistsService {
       throw new Error("El juego ya existe en la wishlist");
     }
 
+    if (notes && notes.length > 200) {
+      throw new Error("Las notas no pueden tener más de 200 caracteres");
+    }
+
     const gameData = {
       game: gameId,
-      notes: notes || "",
+      notes: notes?.trim() || "",
       addedAt: new Date(),
     };
 
@@ -170,6 +263,18 @@ class WishlistsService {
   };
 
   removeGameFromWishlist = async (wishlistId, gameId, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!gameId) {
+      throw new Error("gameId es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlist = await this.#model.getWishlist(wishlistId);
     if (!wishlist) {
       throw new Error("Wishlist no encontrada");
@@ -177,6 +282,14 @@ class WishlistsService {
 
     if (wishlist.owner !== firebaseUid) {
       throw new Error("Solo el owner puede eliminar juegos");
+    }
+
+    const gameExists = wishlist.games.some(
+      (gameItem) => gameItem.game._id.toString() === gameId
+    );
+
+    if (!gameExists) {
+      throw new Error("El juego no existe en la wishlist");
     }
 
     const updatedWishlist = await this.#model.removeGameFromWishlist(
@@ -198,6 +311,18 @@ class WishlistsService {
   };
 
   shareWishlist = async (wishlistId, targetUserId, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!targetUserId) {
+      throw new Error("targetUserId es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlist = await this.#model.getWishlist(wishlistId);
     if (!wishlist) {
       throw new Error("Wishlist no encontrada");
@@ -210,6 +335,10 @@ class WishlistsService {
     const targetUser = await this.#model.getUserById(targetUserId);
     if (!targetUser) {
       throw new Error("Usuario no encontrado");
+    }
+
+    if (targetUser.firebaseUid === firebaseUid) {
+      throw new Error("No puedes compartir wishlist contigo mismo");
     }
 
     const alreadyShared = wishlist.sharedWith.some(
@@ -237,7 +366,7 @@ class WishlistsService {
       sharedWithFormatted.push({
         user: {
           firebaseUid: shareItem.user,
-          username: userInfo?.username || "Usuario desconocido",
+          username: userInfo?.username || "Usuario eliminado",
           avatar: userInfo?.avatar || null,
         },
         sharedAt: shareItem.sharedAt,
@@ -257,6 +386,18 @@ class WishlistsService {
   };
 
   unshareWishlist = async (wishlistId, targetFirebaseUid, firebaseUid) => {
+    if (!wishlistId) {
+      throw new Error("wishlistId es requerido");
+    }
+
+    if (!targetFirebaseUid) {
+      throw new Error("targetFirebaseUid es requerido");
+    }
+
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
     const wishlist = await this.#model.getWishlist(wishlistId);
     if (!wishlist) {
       throw new Error("Wishlist no encontrada");
@@ -264,6 +405,14 @@ class WishlistsService {
 
     if (wishlist.owner !== firebaseUid) {
       throw new Error("Solo el owner puede revocar acceso");
+    }
+
+    const hasAccess = wishlist.sharedWith.some(
+      (shareItem) => shareItem.user === targetFirebaseUid
+    );
+
+    if (!hasAccess) {
+      throw new Error("El usuario no tiene acceso a esta wishlist");
     }
 
     const updatedWishlist = await this.#model.unshareWishlist(
@@ -277,7 +426,7 @@ class WishlistsService {
       sharedWithFormatted.push({
         user: {
           firebaseUid: shareItem.user,
-          username: userInfo?.username || "Usuario desconocido",
+          username: userInfo?.username || "Usuario eliminado",
           avatar: userInfo?.avatar || null,
         },
         sharedAt: shareItem.sharedAt,
