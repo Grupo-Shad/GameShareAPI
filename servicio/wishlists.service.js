@@ -212,6 +212,10 @@ class WishlistsService {
       throw new Error("Usuario no encontrado");
     }
 
+    if (targetUser.firebaseUid === firebaseUid) {
+      throw new Error("No puedes compartir wishlist con tu mismo");
+    }
+
     const alreadyShared = wishlist.sharedWith.some(
       (shareItem) => shareItem.user === targetUser.firebaseUid
     );
