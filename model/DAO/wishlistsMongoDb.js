@@ -1,6 +1,7 @@
 import CnxMongoDB from "../DBMongo.js";
 import { WishlistModel } from "./models/wishlist.js";
 import { UserModel } from "./models/user.js";
+import { GameModel } from "./models/games.js";
 
 class WishlistsMongoDb {
   constructor() {}
@@ -126,6 +127,14 @@ class WishlistsMongoDb {
 
     const user = await UserModel.findOne({ firebaseUid: firebaseUid });
     return user || null;
+  };
+
+  getGame = async (gameId) => {
+    if (!CnxMongoDB.connectionOK)
+      throw new Error("Error al conectar con la bd.");
+
+    const game = await GameModel.findOne({ _id: gameId });
+    return game || null;
   };
 }
 

@@ -22,6 +22,10 @@ class WishlistsController {
       const { wishlistId } = req.params;
       const firebaseUid = req.user.uid;
 
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
+
       const wishlist = await this.#service.getWishlistById(
         wishlistId,
         firebaseUid
@@ -42,6 +46,11 @@ class WishlistsController {
     try {
       const { title, description } = req.body;
       const firebaseUid = req.user.uid;
+
+      if (!title) {
+        return res.status(400).json({ error: "Title es requerido" });
+      }
+
       const wishlist = await this.#service.createWishlist(
         title,
         description,
@@ -49,6 +58,16 @@ class WishlistsController {
       );
       res.status(201).json(wishlist);
     } catch (error) {
+      if (error.message === "Usuario no encontrado en el sistema") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (
+        error.message.includes("formato") ||
+        error.message.includes("caracteres") ||
+        error.message.includes("requerido")
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
       res.status(500).json({ error: error.message });
     }
   };
@@ -58,6 +77,10 @@ class WishlistsController {
       const { wishlistId } = req.params;
       const { gameId, notes } = req.body;
       const firebaseUid = req.user.uid;
+
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
 
       if (!gameId) {
         return res.status(400).json({ error: "gameId es requerido" });
@@ -72,6 +95,9 @@ class WishlistsController {
       res.json(result);
     } catch (error) {
       if (error.message === "Wishlist no encontrada") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === "Juego no encontrado") {
         return res.status(404).json({ error: error.message });
       }
       if (
@@ -89,6 +115,14 @@ class WishlistsController {
       const { wishlistId, gameId } = req.params;
       const firebaseUid = req.user.uid;
 
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
+
+      if (!gameId) {
+        return res.status(400).json({ error: "gameId es requerido" });
+      }
+
       const result = await this.#service.removeGameFromWishlist(
         wishlistId,
         gameId,
@@ -99,7 +133,10 @@ class WishlistsController {
       if (error.message === "Wishlist no encontrada") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Solo el owner puede eliminar juegos") {
+      if (
+        error.message === "Solo el owner puede eliminar juegos" ||
+        error.message === "El juego no existe en la wishlist"
+      ) {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: error.message });
@@ -111,6 +148,14 @@ class WishlistsController {
       const { wishlistId } = req.params;
       const { targetUserId } = req.body;
       const firebaseUid = req.user.uid;
+
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
+
+      if (!targetUserId) {
+        return res.status(400).json({ error: "targetUserId es requerido" });
+      }
 
       const result = await this.#service.shareWishlist(
         wishlistId,
@@ -127,7 +172,8 @@ class WishlistsController {
       }
       if (
         error.message === "Solo el owner puede compartir wishlists" ||
-        error.message === "La wishlist ya está compartida con este usuario"
+        error.message === "La wishlist ya está compartida con este usuario" ||
+        error.message === "No puedes compartir wishlist contigo mismo"
       ) {
         return res.status(400).json({ error: error.message });
       }
@@ -140,6 +186,16 @@ class WishlistsController {
       const { wishlistId, targetFirebaseUid } = req.params;
       const firebaseUid = req.user.uid;
 
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
+
+      if (!targetFirebaseUid) {
+        return res
+          .status(400)
+          .json({ error: "targetFirebaseUid es requerido" });
+      }
+
       const result = await this.#service.unshareWishlist(
         wishlistId,
         targetFirebaseUid,
@@ -150,7 +206,35 @@ class WishlistsController {
       if (error.message === "Wishlist no encontrada") {
         return res.status(404).json({ error: error.message });
       }
-      if (error.message === "Solo el owner puede revocar acceso") {
+      if (
+        error.message === "Solo el owner puede revocar acceso" ||
+        error.message === "El usuario no tiene acceso a esta wishlist"
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  deleteWishlist = async (req, res) => {
+    try {
+      const { wishlistId } = req.params;
+      const firebaseUid = req.user.uid;
+
+      if (!wishlistId) {
+        return res.status(400).json({ error: "wishlistId es requerido" });
+      }
+
+      const result = await this.#service.deleteWishlist(
+        wishlistId,
+        firebaseUid
+      );
+      res.json(result);
+    } catch (error) {
+      if (error.message === "Wishlist no encontrada") {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message === "Solo el owner puede eliminar wishlists") {
         return res.status(400).json({ error: error.message });
       }
       res.status(500).json({ error: error.message });
