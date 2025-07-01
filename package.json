@@ -6,21 +6,28 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/*.test.js --timeout 10000",
+    "test-gen-game": "mocha test/game.test.js --timeout 10000",
+    "test-api-ext": "mocha test/api-ext.test.js --timeout 10000",
+    "test-api-int": "mocha test/api-int.test.js --timeout 10000"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "chai": "^5.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "firebase-admin": "^13.4.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "mocha": "^11.7.1",
     "mongodb": "^6.17.0",
-    "mongoose": "^8.16.1"
+    "mongoose": "^8.16.1",
+    "supertest": "^7.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

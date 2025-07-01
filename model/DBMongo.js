@@ -15,6 +15,12 @@ class CnxMongoDB {
       console.log(`Error en conexión de base datos: ${error.message}`);
     }
   };
+
+  static desconectar = async _ => {
+    if(!CnxMongoDB.connectionOK) return
+    await mongoose.connection.close()
+    CnxMongoDB.connectionOK = false;
+  };
 }
 
 export default CnxMongoDB;
