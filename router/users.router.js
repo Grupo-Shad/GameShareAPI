@@ -27,6 +27,9 @@ class UsersRouter {
       this.#controlador.createUser
     );
 
+    // PUT /users/:id - Actualizar usuario
+    router.put("/:id", this.#controlador.updateUser);
+
     return router;
   }
 }

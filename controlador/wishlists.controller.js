@@ -148,7 +148,7 @@ class WishlistsController {
       const { wishlistId } = req.params;
       const { targetUserId } = req.body;
       const firebaseUid = req.user.uid;
-
+      const usernameSender = req.user.email;
       if (!wishlistId) {
         return res.status(400).json({ error: "wishlistId es requerido" });
       }
@@ -160,7 +160,8 @@ class WishlistsController {
       const result = await this.#service.shareWishlist(
         wishlistId,
         targetUserId,
-        firebaseUid
+        firebaseUid,
+        usernameSender
       );
       res.json(result);
     } catch (error) {

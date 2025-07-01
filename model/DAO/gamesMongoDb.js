@@ -8,7 +8,6 @@ class GamesMongoDb {
     if (!CnxMongoDB.connectionOK)
       throw new Error("Error al conectar con la bd.");
     const games = await GameModel.find();
-    console.log(games);
     return games;
   };
   getGame = async (id) => {

@@ -310,7 +310,12 @@ class WishlistsService {
     };
   };
 
-  shareWishlist = async (wishlistId, targetUserId, firebaseUid) => {
+  shareWishlist = async (
+    wishlistId,
+    targetUserId,
+    firebaseUid,
+    usernameSender
+  ) => {
     if (!wishlistId) {
       throw new Error("wishlistId es requerido");
     }
@@ -358,6 +363,11 @@ class WishlistsService {
       wishlistId,
       shareData
     );
+    await sendSharedListEmail({
+      uid: targetUser.firebaseUid,
+      listaNombre: updatedWishlist.title,
+      compartidoPor: usernameSender || "Un usuario",
+    });
 
     const sharedWithFormatted = [];
     for (const shareItem of updatedWishlist.sharedWith) {
@@ -372,12 +382,6 @@ class WishlistsService {
         sharedAt: shareItem.sharedAt,
       });
     }
-
-    await sendSharedListEmail({
-      uid: shareItem.user,
-      listaNombre: updatedWishlist.name,
-      compartidoPor: req.user.email, // o req.user.username, o como lo tengas
-    });
 
     return {
       message: "Wishlist compartida exitosamente",
@@ -432,11 +436,7 @@ class WishlistsService {
         sharedAt: shareItem.sharedAt,
       });
     }
-    await sendSharedListEmail({
-      uid: shareItem.user,
-      listaNombre: updatedWishlist.name,
-      compartidoPor: req.user.email,
-    });
+
     return {
       message: "Acceso revocado exitosamente",
       sharedWith: sharedWithFormatted,
