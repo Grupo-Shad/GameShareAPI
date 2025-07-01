@@ -1,5 +1,5 @@
 import WishlistsFactory from "../model/DAO/wishlistsFactory.js";
-
+import sendSharedListEmail from "../utils/emailHelper.js";
 class WishlistsService {
   #model;
 
@@ -233,6 +233,7 @@ class WishlistsService {
     const sharedWithFormatted = [];
     for (const shareItem of updatedWishlist.sharedWith) {
       const userInfo = await this.#model.getUserByFirebaseUid(shareItem.user);
+
       sharedWithFormatted.push({
         user: {
           firebaseUid: shareItem.user,
@@ -242,6 +243,12 @@ class WishlistsService {
         sharedAt: shareItem.sharedAt,
       });
     }
+
+    await sendSharedListEmail({
+      uid: shareItem.user,
+      listaNombre: updatedWishlist.name,
+      compartidoPor: req.user.email, // o req.user.username, o como lo tengas
+    });
 
     return {
       message: "Wishlist compartida exitosamente",
@@ -276,7 +283,11 @@ class WishlistsService {
         sharedAt: shareItem.sharedAt,
       });
     }
-
+    await sendSharedListEmail({
+      uid: shareItem.user,
+      listaNombre: updatedWishlist.name,
+      compartidoPor: req.user.email,
+    });
     return {
       message: "Acceso revocado exitosamente",
       sharedWith: sharedWithFormatted,
