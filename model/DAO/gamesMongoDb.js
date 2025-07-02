@@ -22,7 +22,7 @@ class GamesMongoDb {
       throw new Error("Error al conectar con la bd.");
     const gameToAdd = new GameModel(game);
     await gameToAdd.save();
-    return game;
+    return gameToAdd;
   };
 
   updateGame = async (id, gameData) => {
