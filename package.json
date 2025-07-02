@@ -16,7 +16,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@faker-js/faker": "^9.8.0",
+    "@faker-js/faker": "^9.9.0",
     "chai": "^5.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -27,7 +27,9 @@
     "mocha": "^11.7.1",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.1",
-    "supertest": "^7.1.1"
+    "para": "^0.0.2",
+    "supertest": "^7.1.1",
+    "test": "^3.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

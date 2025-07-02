@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import supertest from 'supertest'
-import generadorGame from './generador/game.js'
+import gameGenerator from './generador/game.js'
+import wishlistGenerator  from './generador/wishlist.js'
 import Server from '../server.js'
 
 describe('*** TEST DEL SERVICIO APIREST GAME (int) ***', () => {
@@ -22,7 +23,7 @@ describe('*** TEST DEL SERVICIO APIREST GAME (int) ***', () => {
 
   describe('POST /api/games', () => {
     it('Debería incorporar un game sin problemas', async () => {
-      const game = generadorGame.get()
+      const game = gameGenerator.get()
 
       const response = await request.post('/api/games').send(game)
       expect(response.status).to.eql(200)
@@ -43,7 +44,7 @@ describe('*** TEST DEL SERVICIO APIREST GAME (int) ***', () => {
     })
 
     it('Debería fallar al intentar incorporar un game con datos inválidos', async () => {
-      const game = generadorGame.get()
+      const game = gameGenerator.get()
       const invalidGame = { ...game, name: '' }
 
       const response = await request.post('/api/games').send(invalidGame)
@@ -82,30 +83,36 @@ describe('*** TEST DEL SERVICIO APIREST GAME (int) ***', () => {
 })
 
 describe('*** TEST DEL SERVICIO APIREST WHISHLIST (int) ***', () => {
-  const testFirebaseUid = 'test-user-uid'
-  let testWishlistId
-  const targetUserUidToRemove = 'target-user-uid'
+  const testFirebaseUid = 'test-user-uid';
+  let testWishlistId;
+  const targetUserUidToRemove = 'target-user-uid';
 
   before(async () => {
+    // Generar una wishlist usando el generador
+    const generatedWishlist = wishlistGenerator.get();
+
+    // Opcional: asegurate de setear firebaseUid si tu API lo necesita
+    const wishlistToSend = {
+      ...generatedWishlist,
+      firebaseUid: testFirebaseUid,
+    };
+
+    // Crear la wishlist en la API
     const res = await request
       .post('/api/wishlists')
-      .send({
-        title: 'Wishlist de prueba',
-        description: 'Para tests',
-        firebaseUid: testFirebaseUid
-      })
+      .send(wishlistToSend);
 
-    testWishlistId = res.body._id || res.body.id
-  })
+    testWishlistId = res.body._id || res.body.id;
+  });
 
   describe('GET /api/wishlists', () => {
     it('Debería obtener wishlists por firebaseUid', async () => {
       const res = await request
         .get('/api/wishlists')
-        .query({ firebaseUid: testFirebaseUid })
+        .query({ firebaseUid: testFirebaseUid });
 
-      expect(res.status).to.eql(200)
-      expect(res.body).to.be.an('array')
+      expect(res.status).to.eql(200);
+      expect(res.body).to.be.an('array');
 
       if (res.body.length) {
         expect(res.body[0]).to.include.all.keys(
@@ -117,20 +124,20 @@ describe('*** TEST DEL SERVICIO APIREST WHISHLIST (int) ***', () => {
           'isOwner',
           'createdAt',
           'updatedAt'
-        )
+        );
       }
-    })
-  })
+    });
+  });
 
   describe('DELETE /api/wishlists/:wishlistId/share/:targetFirebaseUid', () => {
     it('Debería revocar acceso a un usuario', async () => {
       const res = await request
         .delete(`/api/wishlists/${testWishlistId}/share/${targetUserUidToRemove}`)
-        .send({ firebaseUid: testFirebaseUid })
+        .send({ firebaseUid: testFirebaseUid });
 
-      expect(res.status).to.eql(200)
-      expect(res.body).to.have.property('message')
-      expect(res.body).to.have.property('sharedWith').that.is.an('array')
-    })
-  })
-})
+      expect(res.status).to.eql(200);
+      expect(res.body).to.have.property('message').that.is.a('string');
+      expect(res.body).to.have.property('sharedWith').that.is.an('array');
+    });
+  });
+});
