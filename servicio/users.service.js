@@ -136,6 +136,73 @@ class UsersService {
       avatar: user.avatar,
     }));
   };
+
+  getUsers = async () => {
+    const users = await this.#model.getUsers();
+    return users.map((user) => ({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+  };
+
+  getUser = async (id) => {
+    const user = await this.#model.getUser(id);
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      firebaseUid: user.firebaseUid,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  };
+
+  getUserByFirebaseUid = async (firebaseUid) => {
+    const user = await this.#model.getUserByFirebaseUid(firebaseUid);
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      firebaseUid: user.firebaseUid,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  };
+
+  registerOrGetUser = async (username, email, firebaseUid, avatar = "") => {
+    if (!firebaseUid) {
+      throw new Error("firebaseUid es requerido");
+    }
+
+    // Intentar obtener usuario existente
+    let user = await this.getUserByFirebaseUid(firebaseUid);
+
+    if (user) {
+      return { user, isNew: false };
+    }
+
+    // Si no existe, crear nuevo usuario
+    if (!username || !email) {
+      throw new Error(
+        "Username y email son requeridos para crear nuevo usuario"
+      );
+    }
+
+    user = await this.createUser(username, email, firebaseUid, avatar);
+    return { user, isNew: true };
+  };
 }
 
 export default UsersService;

@@ -15,10 +15,20 @@ class UsersRouter {
     // GET /users/search?q=query - Buscar usuarios
     router.get("/search", this.#controlador.searchUsers);
 
-    // GET /users - Ruta de prueba
-    router.get("/", (req, res) => {
-      res.json({ message: "API Users funcionando correctamente" });
-    });
+    // GET /users/firebase/:firebaseUid - Obtener usuario por Firebase UID
+    router.get(
+      "/firebase/:firebaseUid",
+      this.#controlador.getUserByFirebaseUid
+    );
+
+    // POST /users/register-or-get - Registrar o obtener usuario existente
+    router.post("/register-or-get", this.#controlador.registerOrGetUser);
+
+    // GET /users - Obtener todos los usuarios o buscar
+    router.get("/", this.#controlador.getUsers);
+
+    // GET /users/:id - Obtener usuario por ID
+    router.get("/:id", this.#controlador.getUser);
 
     // POST /users - Crear nuevo usuario
     router.post(
@@ -29,6 +39,9 @@ class UsersRouter {
 
     // PUT /users/:id - Actualizar usuario
     router.put("/:id", this.#controlador.updateUser);
+
+    // DELETE /users/:id - Eliminar usuario
+    router.delete("/:id", this.#controlador.deleteUser);
 
     return router;
   }

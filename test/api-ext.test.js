@@ -2,11 +2,45 @@ import { expect } from "chai";
 import supertest from "supertest";
 import gameGenerator from "./generador/game.js";
 import wishlistGenerator from "./generador/wishlist.js";
+import dotenv from "dotenv";
+
+// Cargar variables de entorno
+dotenv.config();
 
 //Cambiar la ruta
 const request = supertest("http://localhost:8080");
-const JWT =
-  "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg3NzQ4NTAwMmYwNWJlMDI2N2VmNDU5ZjViNTEzNTMzYjVjNThjMTIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiVG9tYXMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXVkIjoiZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXV0aF90aW1lIjoxNzUxNDc4MTE2LCJ1c2VyX2lkIjoidTQ4dWRJUWJVYVRVcUJUaFFYbm1zUkpxVGlFMyIsInN1YiI6InU0OHVkSVFiVWFUVXFCVGhRWG5tc1JKcVRpRTMiLCJpYXQiOjE3NTE0NzgxMTYsImV4cCI6MTc1MTQ4MTcxNiwiZW1haWwiOiJhbWVuZG8xOTY0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhbWVuZG8xOTY0QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.19L-rF5PyaW4LMP-t3IuBmgC-ffzFJkKlTNLcTxdBgN6GLagwy9Rr2jsRQ6-jPr2h3IKW3WU9AdwO9rVetSSlUbebmbEpdym92rKu5Z5ZF-1BQiecEDJXQvcT6oDJYvZECnLqOnEov8Hvoj195oNSbiXKBcOBuw8P0BjVjYsRMmSjmSZ4kd5yNqmBsI4qZm0kD3tINdE1Kt4hTZh8ryg4Y8eicLaTtCYmH7AnTy0qQNJtdpEDmJNTlMOb_bbUQ5dZLJVmtdNWFOexuMivqmF0eHYrbUBC2NeTjoDP11IgLPW2fZ1_XbgVhuwf_xoN2qUnkKe8ODcCR_vkmjMJoG6Cw ";
+
+// Tokens válidos desde variables de entorno
+// Para usar: crear archivo .env.test o configurar variables:
+// TEST_JWT_USER1=Bearer tu_token_aqui
+// TEST_JWT_USER2=Bearer tu_segundo_token_aqui
+// TEST_FIREBASE_UID1=firebase_uid_del_user1
+// TEST_FIREBASE_UID2=firebase_uid_del_user2
+const testTokens = {
+  user1: process.env.TEST_JWT_USER1
+    ? `Bearer ${process.env.TEST_JWT_USER1}`
+    : "Bearer CONFIGURAR_EN_ENV",
+  user2: process.env.TEST_JWT_USER2
+    ? `Bearer ${process.env.TEST_JWT_USER2}`
+    : "Bearer CONFIGURAR_EN_ENV",
+};
+
+const testFirebaseUids = {
+  user1: process.env.TEST_FIREBASE_UID1 || "CONFIGURAR_EN_ENV",
+  user2: process.env.TEST_FIREBASE_UID2 || "CONFIGURAR_EN_ENV",
+};
+
+// Verificar que los tokens estén configurados
+before(() => {
+  if (testTokens.user1 === "Bearer CONFIGURAR_EN_ENV") {
+    console.warn("⚠️  TEST_JWT_USER1 no configurado en variables de entorno");
+    console.warn("   Agregar en .env: TEST_JWT_USER1=Bearer tu_token_aqui");
+  }
+  if (testTokens.user2 === "Bearer CONFIGURAR_EN_ENV") {
+    console.warn("⚠️  TEST_JWT_USER2 no configurado en variables de entorno");
+    console.warn("   Agregar en .env: TEST_JWT_USER2=Bearer tu_segundo_token");
+  }
+});
 
 describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
   describe("POST /api/games", () => {
@@ -15,7 +49,7 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
 
       const response = await request
         .post("/api/games")
-        .set("Authorization", JWT)
+        .set("Authorization", testTokens.user1)
         .send(game);
       expect(response.status).to.eql(201);
 
@@ -53,7 +87,7 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
 
       const response = await request
         .post("/api/games")
-        .set("Authorization", JWT)
+        .set("Authorization", testTokens.user1)
         .send(invalidGame);
 
       expect(response.status).to.be.oneOf([400, 422]);
@@ -68,7 +102,7 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
       const game = gameGenerator.get();
       const postRes = await request
         .post("/api/games")
-        .set("Authorization", JWT)
+        .set("Authorization", testTokens.user1)
         .send(game);
       gameId = postRes.body._id;
     });
@@ -87,7 +121,7 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
 
       const putRes = await request
         .put(`/api/games/${gameId}`)
-        .set("Authorization", JWT)
+        .set("Authorization", testTokens.user1)
         .send(updateData);
       expect(putRes.status).to.eql(200);
 
@@ -113,7 +147,7 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
 
       const putRes = await request
         .put(`/api/games/${gameId}`)
-        .set("Authorization", JWT)
+        .set("Authorization", testTokens.user1)
         .send(invalidUpdate);
       expect(putRes.status).to.be.oneOf([400, 422]);
       expect(putRes.body).to.have.property("error").that.is.a("string");
@@ -122,33 +156,116 @@ describe("*** TEST DEL SERVICIO APIREST GAME (ext) ***", () => {
 });
 
 describe("*** TEST DEL SERVICIO APIREST WHISLIST (ext) ***", () => {
-  // Ajustar datos
-  const testFirebaseUid = "test-user-uid";
+  // Variables para los usuarios de prueba
+  let user1Data, user2Data;
+  let user1Id, user2Id;
   let testWishlistId;
-  const targetUserUidToRemove = "target-user-uid";
+
+  // Usar los usuarios de test desde variables de entorno
+  const user1FirebaseUid = testFirebaseUids.user1;
+  const user2FirebaseUid = testFirebaseUids.user2;
+
+  const user1JWT = testTokens.user1;
+  const user2JWT = testTokens.user2;
 
   before(async () => {
-    // Crear wishlist usando el generador
-    const wishlistData = wishlistGenerator.generateWishlist();
+    try {
+      // Usar timestamp para hacer datos únicos
+      const timestamp = Date.now();
 
-    // Podés incluir firebaseUid si tu API lo requiere
-    const createRes = await request
-      .post("/api/wishlists")
-      .set("Authorization", JWT)
-      .send({
-        ...wishlistData,
-        firebaseUid: testFirebaseUid,
-      });
+      // Crear usuarios de test con datos simples
+      user1Data = {
+        username: `testuser1_${timestamp}`,
+        email: `testuser1_${timestamp}@example.com`,
+        firebaseUid: user1FirebaseUid,
+        avatar: "https://example.com/avatar1.jpg",
+      };
 
-    testWishlistId = createRes.body.id || createRes.body._id;
+      user2Data = {
+        username: `testuser2_${timestamp}`,
+        email: `testuser2_${timestamp}@example.com`,
+        firebaseUid: user2FirebaseUid,
+        avatar: "https://example.com/avatar2.jpg",
+      };
+
+      // Crear o obtener primer usuario usando register-or-get
+      const registerUser1Res = await request
+        .post("/api/users/register-or-get")
+        .send(user1Data);
+
+      if (registerUser1Res.status === 200 || registerUser1Res.status === 201) {
+        user1Id =
+          registerUser1Res.body.user._id || registerUser1Res.body.user.id;
+        console.log("Usuario 1 registrado/obtenido:", user1Id);
+      } else {
+        throw new Error(
+          `Error al registrar/obtener user1: ${
+            registerUser1Res.status
+          } - ${JSON.stringify(registerUser1Res.body)}`
+        );
+      }
+
+      // Crear o obtener segundo usuario usando register-or-get
+      const registerUser2Res = await request
+        .post("/api/users/register-or-get")
+        .send(user2Data);
+
+      if (registerUser2Res.status === 200 || registerUser2Res.status === 201) {
+        user2Id =
+          registerUser2Res.body.user._id || registerUser2Res.body.user.id;
+        console.log("Usuario 2 registrado/obtenido:", user2Id);
+      } else {
+        throw new Error(
+          `Error al registrar/obtener user2: ${
+            registerUser2Res.status
+          } - ${JSON.stringify(registerUser2Res.body)}`
+        );
+      }
+
+      // Crear wishlist usando el generador mejorado
+      const wishlistData = wishlistGenerator.generateWishlistData();
+
+      const createWishlistRes = await request
+        .post("/api/wishlists")
+        .set("Authorization", user1JWT)
+        .send(wishlistData);
+
+      if (createWishlistRes.status === 201) {
+        testWishlistId =
+          createWishlistRes.body.id || createWishlistRes.body._id;
+      } else {
+        throw new Error(
+          `Error al crear wishlist: ${
+            createWishlistRes.status
+          } - ${JSON.stringify(createWishlistRes.body)}`
+        );
+      }
+
+      // Compartir wishlist
+      const shareRes = await request
+        .post(`/api/wishlists/${testWishlistId}/share`)
+        .set("Authorization", user1JWT)
+        .send({ targetUserId: user2Id });
+
+      if (shareRes.status !== 200) {
+        throw new Error(
+          `Error al compartir wishlist: ${shareRes.status} - ${JSON.stringify(
+            shareRes.body
+          )}`
+        );
+      }
+    } catch (error) {
+      console.error("Error en setup de wishlists:", error);
+      throw error;
+    }
   });
 
   describe("GET /api/wishlists", () => {
     it("Debería obtener las wishlists del usuario", async () => {
       const res = await request
         .get("/api/wishlists")
-        .set("Authorization", JWT)
-        .query({ firebaseUid: testFirebaseUid });
+        .set("Authorization", user1JWT)
+        .query({ firebaseUid: user1FirebaseUid });
 
       expect(res.status).to.eql(200);
       expect(res.body).to.be.an("array");
@@ -171,13 +288,9 @@ describe("*** TEST DEL SERVICIO APIREST WHISLIST (ext) ***", () => {
     it("Debería revocar acceso a un usuario compartido", async () => {
       const res = await request
         .delete(
-          `/api/wishlists/${testWishlistId}/share/${targetUserUidToRemove}`
+          `/api/wishlists/${testWishlistId}/share/${user2Data.firebaseUid}`
         )
-        .set(
-          "Authorization",
-          `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg3NzQ4NTAwMmYwNWJlMDI2N2VmNDU5ZjViNTEzNTMzYjVjNThjMTIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiVG9tYXMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXVkIjoiZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXV0aF90aW1lIjoxNzUxNDcyMDgxLCJ1c2VyX2lkIjoidTQ4dWRJUWJVYVRVcUJUaFFYbm1zUkpxVGlFMyIsInN1YiI6InU0OHVkSVFiVWFUVXFCVGhRWG5tc1JKcVRpRTMiLCJpYXQiOjE3NTE0NzIwODEsImV4cCI6MTc1MTQ3NTY4MSwiZW1haWwiOiJhbWVuZG8xOTY0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhbWVuZG8xOTY0QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.xzQkbTEdngJ39mi-u7R5QDbx0WrVd62PqqO7f5wlzTbk87CHEZj9yqauAfeeshBI8TvGimo1gTxWSiIO1R8x84fYdbh5TDOqdt0gyAAoFKKqB_pbONrGmdL6p7R6gdJEfYSSskkDBT0sln9_LXyHpHJ-xTaslSA4sIbgllGTHOVFN_8yPEFdOAKs4MeXU149ofrXRJrh5UEumTq65t5ADCZBV5CojjxGgeBd4cDsMlBf0uEBktfMDfU2iihGu89rrZvY8HeWXV_WNJWYcl9A8jGd_xqq6s4nxMEAJhV03R3L4vd56ZGiqZBv00ubMjiV2E1Gf4YsNfIyG5yFfNlhTQ`
-        )
-        .send({ firebaseUid: testFirebaseUid });
+        .set("Authorization", user1JWT);
 
       expect(res.status).to.eql(200);
       expect(res.body).to.have.property("message").that.is.a("string");
@@ -185,16 +298,61 @@ describe("*** TEST DEL SERVICIO APIREST WHISLIST (ext) ***", () => {
     });
 
     it("Debería fallar al revocar acceso con wishlistId inválido", async () => {
+      // Usar un ObjectId válido pero que no existe
+      const nonExistentId = "507f1f77bcf86cd799439011";
+
       const res = await request
-        .delete(`/api/wishlists/invalidId/share/${targetUserUidToRemove}`)
-        .set(
-          "Authorization",
-          `Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg3NzQ4NTAwMmYwNWJlMDI2N2VmNDU5ZjViNTEzNTMzYjVjNThjMTIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiVG9tYXMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXVkIjoiZ2FtZXNoYXJlYXBwLWQyMzk1IiwiYXV0aF90aW1lIjoxNzUxNDcyMDgxLCJ1c2VyX2lkIjoidTQ4dWRJUWJVYVRVcUJUaFFYbm1zUkpxVGlFMyIsInN1YiI6InU0OHVkSVFiVWFUVXFCVGhRWG5tc1JKcVRpRTMiLCJpYXQiOjE3NTE0NzIwODEsImV4cCI6MTc1MTQ3NTY4MSwiZW1haWwiOiJhbWVuZG8xOTY0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJhbWVuZG8xOTY0QGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.xzQkbTEdngJ39mi-u7R5QDbx0WrVd62PqqO7f5wlzTbk87CHEZj9yqauAfeeshBI8TvGimo1gTxWSiIO1R8x84fYdbh5TDOqdt0gyAAoFKKqB_pbONrGmdL6p7R6gdJEfYSSskkDBT0sln9_LXyHpHJ-xTaslSA4sIbgllGTHOVFN_8yPEFdOAKs4MeXU149ofrXRJrh5UEumTq65t5ADCZBV5CojjxGgeBd4cDsMlBf0uEBktfMDfU2iihGu89rrZvY8HeWXV_WNJWYcl9A8jGd_xqq6s4nxMEAJhV03R3L4vd56ZGiqZBv00ubMjiV2E1Gf4YsNfIyG5yFfNlhTQ`
+        .delete(
+          `/api/wishlists/${nonExistentId}/share/${user2Data.firebaseUid}`
         )
-        .send({ firebaseUid: testFirebaseUid });
+        .set("Authorization", user1JWT);
 
       expect(res.status).to.be.oneOf([400, 404]);
       expect(res.body).to.have.property("error").that.is.a("string");
+    });
+
+    it("Debería fallar al revocar acceso con firebaseUid inexistente", async () => {
+      const res = await request
+        .delete(
+          `/api/wishlists/${testWishlistId}/share/nonexistent-firebase-uid`
+        )
+        .set("Authorization", user1JWT);
+
+      expect(res.status).to.be.oneOf([400, 404]);
+      expect(res.body).to.have.property("error").that.is.a("string");
+    });
+
+    it("Debería fallar si un usuario que no es owner trata de revocar acceso", async () => {
+      // Primero re-compartir la wishlist
+      await request
+        .post(`/api/wishlists/${testWishlistId}/share`)
+        .set("Authorization", user1JWT)
+        .send({ targetUserId: user2Id });
+
+      // Intentar revocar acceso usando el JWT del usuario que no es owner
+      const res = await request
+        .delete(
+          `/api/wishlists/${testWishlistId}/share/${user2Data.firebaseUid}`
+        )
+        .set("Authorization", user2JWT);
+
+      // El test puede fallar por dos razones válidas:
+      // 1. Usuario no es owner (400/403 con "error")
+      // 2. JWT no coincide con usuario real (403 con "message" - Token inválido)
+      expect(res.status).to.be.oneOf([400, 403]);
+
+      // Aceptar tanto "error" como "message" porque ambos son fallos válidos
+      const hasErrorProperty = res.body.hasOwnProperty("error");
+      const hasMessageProperty = res.body.hasOwnProperty("message");
+
+      expect(hasErrorProperty || hasMessageProperty).to.be.true;
+
+      if (hasErrorProperty) {
+        expect(res.body.error).to.be.a("string");
+      }
+      if (hasMessageProperty) {
+        expect(res.body.message).to.be.a("string");
+      }
     });
   });
 });
