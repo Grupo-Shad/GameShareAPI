@@ -16,6 +16,11 @@ class FavoritesService {
     return favorites;
   }
 
+  getFavoriteIds = async (userId) => {
+    const favoriteIds = await this.#favoritesModel.getFavoriteIds(userId);
+    return favoriteIds;
+  }
+
   toggleFavorite = async (userId, gameId) => {
     let favoriteIds;
     favoriteIds = await this.#favoritesModel.getFavoriteIds(userId);

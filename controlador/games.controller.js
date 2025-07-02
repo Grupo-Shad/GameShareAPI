@@ -1,10 +1,13 @@
 import GamesService from "../servicio/games.service.js";
+import FavoritesService from "../servicio/favorites.service.js";
 
 class GamesController {
   #service;
+  #favoritesService;
 
   constructor(persistencia) {
     this.#service = new GamesService(persistencia);
+    this.#favoritesService = new FavoritesService(persistencia);
   }
 
   getGames = async (req, res) => {
@@ -25,7 +28,30 @@ class GamesController {
   getFeaturedGames = async (req, res) => {
     try {
       const featuredGames = await this.#service.getFeaturedGames();
-      res.json(featuredGames);
+      
+      // Obtener el userId del usuario autenticado
+      const userId = req.user?.uid;
+      
+      if (userId) {
+        // Obtener los IDs de favoritos del usuario
+        const userFavoriteIds = await this.#favoritesService.getFavoriteIds(userId);
+        
+        // Agregar isFavorite a cada juego
+        const gamesWithFavoriteStatus = featuredGames.map(game => ({
+          ...game.toObject ? game.toObject() : game, // Para compatibilidad con MongoDB y memoria
+          isFavorite: userFavoriteIds.includes(game._id?.toString() || game.id?.toString())
+        }));
+        
+        res.json(gamesWithFavoriteStatus);
+      } else {
+        // Si no hay usuario autenticado, todos los isFavorite son false
+        const gamesWithFavoriteStatus = featuredGames.map(game => ({
+          ...game.toObject ? game.toObject() : game,
+          isFavorite: false
+        }));
+        
+        res.json(gamesWithFavoriteStatus);
+      }
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
